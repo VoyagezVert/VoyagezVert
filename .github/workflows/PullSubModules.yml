@@ -21,9 +21,9 @@ jobs:
 
           cd vv_backend
 
-          # Récupère le dernier commit de la branche main du submodule
-          git fetch origin main
-          git checkout origin/main
+          # Récupère le dernier commit de la branche staging du submodule
+          git fetch origin staging
+          git checkout origin/staging
 
           cd ..
 
