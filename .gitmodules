@@ -1,6 +1,6 @@
 [submodule "vv_backend"]
 	path = vv_backend
-	url = ./vv_backend
+	url = https://github.com/VoyagezVert/vv_backend
 [submodule "vv_frontend"]
 	path = vv_frontend
-	url = ./vv_frontend
+	url = https://github.com/VoyagezVert/vv_frontend
