@@ -6,18 +6,28 @@ on:
 jobs:
   update-submodule:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout parent repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Update submodule and commit
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git submodule update --remote --merge
-          git add .
-          git commit -m "🔄 Update submodule" || echo "No changes"
+          cd vv_backend
+
+          # Récupère le dernier commit de la branche main du submodule
+          git fetch origin main
+          git checkout origin/main
+
+          cd ..
+
+          # Enregistre le nouveau commit dans le parent
+          git add vv_backend
+          git commit -m "🔄 Force update submodule to latest commit" || echo "No changes"
           git push
