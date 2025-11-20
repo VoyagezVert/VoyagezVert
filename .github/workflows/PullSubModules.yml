@@ -15,6 +15,8 @@ jobs:
           fetch-depth: 0
 
       - name: Update submodule and commit
+        env:
+          PAT_PUSH: ${{ secrets.PAT_PUSH }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -30,4 +32,6 @@ jobs:
           # Enregistre le nouveau commit dans le parent
           git add vv_backend
           git commit -m "🔄 Force update submodule to latest commit" || echo "No changes"
-          git push
+
+          # Push avec PAT (et non GITHUB_TOKEN)
+          git push https://${PAT_PUSH}@github.com/VoyagezVert/VoyagezVert.git HEAD:main
