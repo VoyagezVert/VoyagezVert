@@ -1,0 +1,66 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8085:8080"   # dashboard Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+    restart: always
+
+  backend:
+    image: openjdk:25
+    container_name: springboot-backend
+    build:
+      context: ./vv_backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: ${POSTGRES_DB_URL}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`backend.local`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls=true"
+    restart: always
+    ports:
+      - "8080:8080"
+
+  frontend:
+    container_name: react-frontend
+    build:
+      context: ./vv_frontend
+    environment:
+      - NODE_ENV=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`voyagezvert.local`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls=true"
+    restart: always
+
+  database:
+    image: postgres:18-alpine3.22
+    container_name: voyagezvert_db
+    restart: always
+    env_file:
+      - ./.env.prod
+    volumes:
+      - voyagezvert_db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  voyagezvert_db:

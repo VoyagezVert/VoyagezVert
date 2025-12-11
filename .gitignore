@@ -1,0 +1,3 @@
+traefik/certs/*.crt
+traefik/certs/*.key
+.env.prod
